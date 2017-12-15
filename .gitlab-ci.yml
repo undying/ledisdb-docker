@@ -1,0 +1,47 @@
+---
+
+before_script:
+  - docker info
+  - docker_build_tag=${CI_PROJECT_NAME}-${CI_BUILD_REF}
+
+
+types:
+  - build
+  - push
+
+
+variables:
+  project: ledisdb
+  docker_extra_tags: "0.6 latest"
+  docker_registries: docker-office.ostrovok.in/releases docker-sl.ostrovok.in/releases
+
+
+build_image:
+  type: build
+  script:
+    - docker build --pull=true -t ${docker_build_tag} .
+
+
+push_to_registry:
+  type: push
+  script:
+    - |
+      images=""
+      for registry in ${docker_registries};do
+        for tag in b${CI_PIPELINE_ID} ${docker_extra_tags};do
+          image="${registry}/${project}:${tag}"
+          images="${images} ${image}"
+
+          docker tag ${docker_build_tag} ${image}
+        done
+      done
+    - /opt/docker-tools/docker_push.py -d ${images}
+    - |
+      for image in ${images};do
+        docker rmi ${image}
+      done
+
+
+# vi:syntax=yaml
+
+
