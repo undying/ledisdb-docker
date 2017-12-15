@@ -1,5 +1,5 @@
 
-FROM debian:8 as builder
+FROM debian:8
 
 ENV color_on='\e[' color_off='\e[0m' color_red='31;1m' color_green='32;1m' color_blue='34;1m'
 ENV TERM=screen TZ=UTC LC_ALL=C
